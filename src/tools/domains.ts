@@ -1,6 +1,4 @@
 import { z } from 'zod'
- 
-export const useDomainTools = (server: McpServer) => {
 import { rtr } from '../api.js'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 
@@ -13,6 +11,8 @@ import type {
   ListFilter, IQuote, IDomainCreateProcessResponse, IDomainRegister
 } from '@realtimeregister/api'
 import { ListParamsInputSchema } from '../models/listParams.js'
+import { DomainRegistration, DomainRegistrationSchema } from '../models/domains.js'
+import { asSensitive } from '../decorators.js'
 import {ToolCallBack, ToolRegistryFunction} from '../models/tools.js'
 import {textResponse} from '../helpers.js'
 
@@ -65,5 +65,41 @@ export const useDomainTools: ToolRegistryFunction = (server: McpServer): void =>
     }
   })
 
+
+  /**
+   * Register a new domain.
+   * @param domain - Domain name to register.
+   * @param registrant - Contact handle of the registrant.
+   * @param quote - If true, requests a quote for the domain registration.
+   */
+  server.registerTool(
+    'register_domain',
+    {
+      title: 'Register Domain',
+      description: 'Register a new domain',
+      inputSchema: DomainRegistrationSchema._def.shape(),
+    },
+    asSensitive<DomainRegistration>(
+      'register_domain',
+      async (args: DomainRegistration): Promise<ToolCallBack> => {
+
+        const data = {
+          ...args,
+          contacts: args.contacts.length ? args.contacts : [
+            { role: 'ADMIN', handle: args.registrant },
+            { role: 'TECH', handle: args.registrant },
+            { role: 'BILLING', handle: args.registrant },
+          ],
+        } as IDomainRegister
+
+        const response = await rtr.domains.register(data, args.quote)
+
+        if (args.quote) {
+          return textResponse('Quote requested successfully', { ...response } as IQuote)
+        }
+
+        return textResponse('Domain registration started successfully', { ...response } as IDomainCreateProcessResponse)
+    })
+  )
 
 }
