@@ -10,6 +10,7 @@ export default defineConfig(
     rules: {
       semi: ['warn', 'never'],
       quotes: ['error', 'single'],
+      '@typescript-eslint/no-explicit-any': 'off',
     }
   }
 )
