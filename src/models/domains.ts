@@ -13,7 +13,7 @@ export const DomainTransferSchema = z.object({
   autoRenew: z.boolean().default(false).describe('If true, automatically renews the domain when it expires'),
   privacyProtect: z.boolean().default(false).describe('If true, enables privacy protection for the domain'),
   period: z.number().optional().describe('The period in months for the domain registration'),
-  ns: z.array(z.string()).optional().describe('Name servers to use for the domain registration'),
+  ns: z.array(z.string()).optional().describe('Name servers to use for the domain registration')
 }).strict()
 
 export const DomainRegistrationSchema = DomainTransferSchema.extend({

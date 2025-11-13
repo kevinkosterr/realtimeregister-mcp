@@ -1,5 +1,5 @@
-import type {ToolCallBack} from '../models/tools.js'
-import {textResponse} from '../helpers.js'
+import type { ToolCallBack } from '../models/tools.js'
+import { textResponse } from '../helpers.js'
 
 export interface PendingAction {
   executor: () => Promise<ToolCallBack>

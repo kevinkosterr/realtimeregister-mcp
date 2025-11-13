@@ -13,8 +13,8 @@ import type {
 import { ListParamsInputSchema } from '../models/listParams.js'
 import { DomainRegistration, DomainRegistrationSchema } from '../models/domains.js'
 import { asSensitive } from '../decorators.js'
-import {ToolCallBack, ToolRegistryFunction} from '../models/tools.js'
-import {textResponse} from '../helpers.js'
+import { ToolCallBack, ToolRegistryFunction } from '../models/tools.js'
+import { textResponse } from '../helpers.js'
 
 export const useDomainTools: ToolRegistryFunction = (server: McpServer): void => {
 
@@ -26,12 +26,12 @@ export const useDomainTools: ToolRegistryFunction = (server: McpServer): void =>
     title: 'Check Domain Availability',
     description: 'Check if a domain is available for registration',
     inputSchema: {
-      domain: z.string().max(255).describe('The domain to check'),
+      domain: z.string().max(255).describe('The domain to check')
     }
   }, async ({ domain }) => {
     const response: IDomainCheckResponse = await rtr.domains.check(domain)
     return {
-      content: [{ type: 'text', text: JSON.stringify(response) }],
+      content: [ { type: 'text', text: JSON.stringify(response) } ],
       structuredContent: { ...response }
     }
   })
@@ -41,6 +41,7 @@ export const useDomainTools: ToolRegistryFunction = (server: McpServer): void =>
    * @param limit - Maximum number of domains to return, defaults to 10.
    * @param fields - Fields to include in the response, defaults to ['domainName'].
    * @param filters - Filters to apply to the list, defaults to no filters.
+   * @param q - Search query to filter domains, undefined by default.
    */
   server.registerTool('list_domains', {
     title: 'List Domains',
@@ -49,18 +50,18 @@ export const useDomainTools: ToolRegistryFunction = (server: McpServer): void =>
   }, async ({ limit, fields, filters, q }) => {
 
     const domainLimit: number = limit || 10
-    const domainFields: DomainField[] = (fields as DomainField[]) || ['domainName']
+    const domainFields: DomainField[] = (fields as DomainField[]) || [ 'domainName' ]
     const domainFilters: ListFilter<DomainFilterField>[] = (filters as ListFilter<DomainFilterField>[]) || []
 
     const response: IPage<IDomain> = await rtr.domains.list({
-        limit: domainLimit,
-        fields: domainFields,
-        filters: domainFilters,
-        q
-      })
+      limit: domainLimit,
+      fields: domainFields,
+      filters: domainFilters,
+      q
+    })
     const domains = [ ...response.entities ] as Record<string, any>[]
     return {
-      content: [{ type: 'text', text: JSON.stringify(response.entities) }],
+      content: [ { type: 'text', text: JSON.stringify(response.entities) } ],
       structuredContent: { entities: domains }
     }
   })
@@ -77,7 +78,7 @@ export const useDomainTools: ToolRegistryFunction = (server: McpServer): void =>
     {
       title: 'Register Domain',
       description: 'Register a new domain',
-      inputSchema: DomainRegistrationSchema._def.shape(),
+      inputSchema: DomainRegistrationSchema._def.shape()
     },
     asSensitive<DomainRegistration>(
       'register_domain',
@@ -88,8 +89,8 @@ export const useDomainTools: ToolRegistryFunction = (server: McpServer): void =>
           contacts: args.contacts.length ? args.contacts : [
             { role: 'ADMIN', handle: args.registrant },
             { role: 'TECH', handle: args.registrant },
-            { role: 'BILLING', handle: args.registrant },
-          ],
+            { role: 'BILLING', handle: args.registrant }
+          ]
         } as IDomainRegister
 
         const response = await rtr.domains.register(data, args.quote)
@@ -99,7 +100,7 @@ export const useDomainTools: ToolRegistryFunction = (server: McpServer): void =>
         }
 
         return textResponse('Domain registration started successfully', { ...response } as IDomainCreateProcessResponse)
-    })
+      })
   )
 
 }

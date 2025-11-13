@@ -10,7 +10,7 @@ export const ListFilterSchema: ZodObject<{
 }> = z.object({
   field: z.string().describe('Field to filter by'),
   matcher: z.string().refine(v => matcherKeys.includes(v), { message: 'Invalid matcher' }),
-  value: z.union([z.string(), z.array(z.string())]).describe('Value to match against')
+  value: z.union([ z.string(), z.array(z.string()) ]).describe('Value to match against')
 })
 
 export const ListParamsInputSchema = {

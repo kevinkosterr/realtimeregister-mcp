@@ -17,7 +17,7 @@ export function asSensitive <TArgs extends Record<string, any>> (actionName: str
 
     // Allow opt-in of skipping the confirmation step.
     if (process.env.SKIP_CONFIRM) {
-     return callback(args, extra)
+      return callback(args, extra)
     }
 
     if (PENDING_ACTIONS.size > 0) {

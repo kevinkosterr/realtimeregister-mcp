@@ -1,4 +1,4 @@
-import {McpServer} from '@modelcontextprotocol/sdk/server/mcp.js'
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { cancelPendingAction, executePendingAction } from '../store/index.js'
 import type { ToolRegistryFunction } from '../models/tools.js'
 
