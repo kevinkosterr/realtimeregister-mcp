@@ -26,7 +26,8 @@ export default defineConfig(
       '@stylistic/quotes': [ 1, 'single' ],
       '@stylistic/quote-props': [ 1, 'consistent-as-needed' ],
       '@stylistic/no-trailing-spaces': 'error',
-      '@typescript-eslint/no-explicit-any': 'off'
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/consistent-type-definitions': 'off'
     }
   }
 )
