@@ -1,9 +1,9 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 
-export interface ToolCallBack {
+export type TextualResponse = {
   content: { type: 'text', text: string }[],
   structuredContent?: Record<string, any>
 }
 
-export type ToolRunnerFn<T> = (args: T, extra: any) => Promise<ToolCallBack>
+export type ToolRunnerFn<T> = (args: T, extra: any) => Promise<TextualResponse>
 export type ToolRegistryFunction = (server: McpServer) => void

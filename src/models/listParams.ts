@@ -13,7 +13,7 @@ export const ListFilterSchema: ZodObject<{
   value: z.union([ z.string(), z.array(z.string()) ]).describe('Value to match against')
 })
 
-export const ListParamsInputSchema = {
+export const ListParamsInputSchema = z.object({
   limit: z.number().optional().describe('Limit for pagination, e.g. 10'),
   offset: z.number().optional().describe('Offset for pagination, e.g. 10'),
   order: z.array(z.string()).optional().describe('Order by fields, e.g. ["domainName", "-registrant"]'),
@@ -21,4 +21,4 @@ export const ListParamsInputSchema = {
   q: z.string().optional().describe('Search query'),
   fields: z.array(z.string()).optional().describe('Fields to include in the response'),
   filters: z.array(ListFilterSchema).optional().describe('Filters to apply to the list')
-}
+})

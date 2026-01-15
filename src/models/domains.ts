@@ -9,7 +9,7 @@ export const DomainTransferSchema = z.object({
   quote: z.boolean().default(false).describe('If true, requests a quote for the domain registration'),
   registrant: z.string().describe('Contact handle of the registrant'),
   contacts: z.array(ContactSchema).max(3).default([]).describe('Contacts associated with the domain registration'),
-  authcode: z.string().optional(),
+  authcode: z.string(),
   autoRenew: z.boolean().default(false).describe('If true, automatically renews the domain when it expires'),
   privacyProtect: z.boolean().default(false).describe('If true, enables privacy protection for the domain'),
   period: z.number().optional().describe('The period in months for the domain registration'),
@@ -17,6 +17,7 @@ export const DomainTransferSchema = z.object({
 }).strict()
 
 export const DomainRegistrationSchema = DomainTransferSchema.extend({
+  authcode: z.string().optional(),
   skipValidation: z.boolean().default(false)
 })
 
