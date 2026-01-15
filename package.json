@@ -1,11 +1,11 @@
 {
-  "name": "rtr-mcp",
+  "name": "realtimeregister-mcp",
   "version": "0.0.1",
   "description": "Model Context Protocol for Realtime Register API.",
   "private": true,
   "type": "module",
   "bin": {
-    "rtr-mcp": "./build/main.js"
+    "realtimeregister-mcp": "./build/main.js"
   },
   "scripts": {
     "build": "tsc",
