@@ -12,13 +12,21 @@ export type PendingActionEntry = [string, PendingAction] | undefined
  * An in-memory store to keep track of pending actions. Pending actions are actions that require user confirmation before
  * execution. Cancelling the actions will remove them from the store.
  */
-export const PENDING_ACTIONS = new Map<string, PendingAction>()
+const PENDING_ACTIONS = new Map<string, PendingAction>()
 
 /**
  * Get the next pending action in the PENDING_ACTIONS map.
  */
 export function getNextPendingAction (): PendingActionEntry {
   return PENDING_ACTIONS.entries().next().value
+}
+
+export function createPendingAction (actionName: string, executor: () => Promise<ToolCallBack>): void {
+  PENDING_ACTIONS.set(actionName, { executor, timestamp: Date.now() })
+}
+
+export function hasPendingActions(): boolean {
+  return PENDING_ACTIONS.size > 0
 }
 
 /**

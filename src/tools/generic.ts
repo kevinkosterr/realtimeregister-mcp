@@ -1,6 +1,6 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
-import { cancelPendingAction, executePendingAction } from '../store/index.js'
 import type { ToolRegistryFunction } from '../models/tools.js'
+import { executePendingAction, cancelPendingAction } from '../utils/actions.js'
 
 export const useGenericTools: ToolRegistryFunction = (server: McpServer) => {
 
@@ -11,7 +11,10 @@ export const useGenericTools: ToolRegistryFunction = (server: McpServer) => {
     'confirm_pending_action',
     {
       title: 'Confirm Pending Action',
-      description: 'Confirm a pending action'
+      description: 'Confirm a pending action',
+      annotations: {
+        openWorldHint: false
+      }
     },
     async () => await executePendingAction()
   )
@@ -23,7 +26,10 @@ export const useGenericTools: ToolRegistryFunction = (server: McpServer) => {
     'cancel_pending_action',
     {
       title: 'Cancel Pending Action',
-      description: 'Cancel a pending action'
+      description: 'Cancel a pending action',
+      annotations: {
+        openWorldHint: false
+      }
     },
     async () => await cancelPendingAction()
   )

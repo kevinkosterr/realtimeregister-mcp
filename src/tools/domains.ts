@@ -1,5 +1,3 @@
-import { z } from 'zod'
-import { rtr } from '../api.js'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 
 import type {
@@ -8,33 +6,25 @@ import type {
   IDomain,
   DomainField,
   DomainFilterField,
-  ListFilter, IQuote, IDomainCreateProcessResponse, IDomainRegister
+  ListFilter,
+  IQuote,
+  IDomainCreateProcessResponse,
+  IDomainRegister
 } from '@realtimeregister/api'
+
+import { rtr } from '../api.js'
+import { replyText } from '../utils/generic.js'
+import { mapContacts } from '../utils/domains.js'
 import { ListParamsInputSchema } from '../models/listParams.js'
 import { DomainRegistration, DomainRegistrationSchema } from '../models/domains.js'
 import { asSensitive } from '../decorators.js'
-import { ToolCallBack, ToolRegistryFunction } from '../models/tools.js'
-import { textResponse } from '../helpers.js'
+import { TextualResponse, ToolRegistryFunction } from '../models/tools.js'
 
+/**
+ * Tools for managing domains via the Realtime Register API.
+ * @param server - MCP server instance.
+ */
 export const useDomainTools: ToolRegistryFunction = (server: McpServer): void => {
-
-  /**
-   * Check Domain Availability
-   * @param domain - Domain name to check.
-   */
-  server.registerTool('check_domain', {
-    title: 'Check Domain Availability',
-    description: 'Check if a domain is available for registration',
-    inputSchema: {
-      domain: z.string().max(255).describe('The domain to check')
-    }
-  }, async ({ domain }) => {
-    const response: IDomainCheckResponse = await rtr.domains.check(domain)
-    return {
-      content: [ { type: 'text', text: JSON.stringify(response) } ],
-      structuredContent: { ...response }
-    }
-  })
 
   /**
    * List the domains inside your account.
@@ -46,7 +36,10 @@ export const useDomainTools: ToolRegistryFunction = (server: McpServer): void =>
   server.registerTool('list_domains', {
     title: 'List Domains',
     description: 'List domains within your account',
-    inputSchema: ListParamsInputSchema
+    inputSchema: ListParamsInputSchema._def.shape(),
+    annotations: {
+      openWorldHint: true
+    }
   }, async ({ limit, fields, filters, q }) => {
 
     const domainLimit: number = limit || 10
@@ -60,10 +53,7 @@ export const useDomainTools: ToolRegistryFunction = (server: McpServer): void =>
       q
     })
     const domains = [ ...response.entities ] as Record<string, any>[]
-    return {
-      content: [ { type: 'text', text: JSON.stringify(response.entities) } ],
-      structuredContent: { entities: domains }
-    }
+    return replyText(JSON.stringify(response.entities), { entities: domains })
   })
 
 
@@ -77,29 +67,32 @@ export const useDomainTools: ToolRegistryFunction = (server: McpServer): void =>
     'register_domain',
     {
       title: 'Register Domain',
-      description: 'Register a new domain',
-      inputSchema: DomainRegistrationSchema._def.shape()
+      description: 'Checks if a domain name is available and registers it if available',
+      inputSchema: DomainRegistrationSchema._def.shape(),
+      annotations: {
+        openWorldHint: true
+      }
     },
     asSensitive<DomainRegistration>(
       'register_domain',
-      async (args: DomainRegistration): Promise<ToolCallBack> => {
+      async (args: DomainRegistration): Promise<TextualResponse> => {
+        const domainCheckResponse: IDomainCheckResponse = await rtr.domains.check(args.domainName)
+        if (domainCheckResponse.available) {
+          const data = {
+            ...args,
+            contacts: mapContacts(args.registrant, args.contacts)
+          } as IDomainRegister
 
-        const data = {
-          ...args,
-          contacts: args.contacts.length ? args.contacts : [
-            { role: 'ADMIN', handle: args.registrant },
-            { role: 'TECH', handle: args.registrant },
-            { role: 'BILLING', handle: args.registrant }
-          ]
-        } as IDomainRegister
+          const response = await rtr.domains.register(data, args.quote)
 
-        const response = await rtr.domains.register(data, args.quote)
+          if (args.quote) {
+            return replyText('Quote requested successfully', { ...response } as IQuote)
+          }
 
-        if (args.quote) {
-          return textResponse('Quote requested successfully', { ...response } as IQuote)
+          return replyText('Domain registration started successfully', { ...response } as IDomainCreateProcessResponse)
         }
 
-        return textResponse('Domain registration started successfully', { ...response } as IDomainCreateProcessResponse)
+        return replyText(`Sorry, ${args.domainName} is unavailable.`, domainCheckResponse)
       })
   )
 
