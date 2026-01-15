@@ -16,8 +16,8 @@ import { rtr } from '../api.js'
 import { replyText } from '../utils/generic.js'
 import { mapContacts } from '../utils/domains.js'
 import { ListParamsInputSchema } from '../models/listParams.js'
-import { DomainRegistration, DomainRegistrationSchema } from '../models/domains.js'
-import { asSensitive } from '../decorators.js'
+import { DomainGetSchema, DomainRegistration, DomainRegistrationSchema } from '../models/domains.js'
+import { asQuoted } from '../decorators.js'
 import { TextualResponse, ToolRegistryFunction } from '../models/tools.js'
 
 /**
@@ -98,7 +98,7 @@ export const useDomainTools: ToolRegistryFunction = (server: McpServer): void =>
         openWorldHint: true
       }
     },
-    asSensitive<DomainRegistration>(
+    asQuoted<DomainRegistration>(
       'register_domain',
       async (args: DomainRegistration): Promise<TextualResponse> => {
         const domainCheckResponse: IDomainCheckResponse = await rtr.domains.check(args.domainName)
@@ -111,10 +111,12 @@ export const useDomainTools: ToolRegistryFunction = (server: McpServer): void =>
           const response = await rtr.domains.register(data, args.quote)
 
           if (args.quote) {
-            return replyText('Quote requested successfully', { ...response } as IQuote)
+            const quoteResponse = response as IQuote
+            return replyText(`Quote requested successfully. Total is ${quoteResponse.total / 100} ${quoteResponse.currency}.`)
           }
 
-          return replyText('Domain registration started successfully', { ...response } as IDomainCreateProcessResponse)
+          const processResponse = response as IDomainCreateProcessResponse
+          return replyText(`Domain registration for ${processResponse.domainName} started successfully`)
         }
 
         return replyText(`Sorry, ${args.domainName} is unavailable.`, domainCheckResponse)
