@@ -32,6 +32,7 @@ export const useDomainTools: ToolRegistryFunction = (server: McpServer): void =>
    * @param fields - Fields to include in the response, defaults to ['domainName'].
    * @param filters - Filters to apply to the list, defaults to no filters.
    * @param q - Search query to filter domains, undefined by default.
+   * @link https://dm.realtimeregister.com/docs/api/domains/list
    */
   server.registerTool('list_domains', {
     title: 'List Domains',
@@ -56,12 +57,36 @@ export const useDomainTools: ToolRegistryFunction = (server: McpServer): void =>
     return replyText(JSON.stringify(response.entities), { entities: domains })
   })
 
+  /**
+   * Get a domain from your account.
+   * @param domainName - Domain name to retrieve.
+   * @param fields - Fields to include in the response, defaults to all fields.
+   * @link https://dm.realtimeregister.com/docs/api/domains/get
+   */
+  server.registerTool(
+    'get_domain',
+    {
+      title: 'Get Domain',
+      description: 'Show domain information by domain name available within your account.',
+      inputSchema: DomainGetSchema._def.shape(),
+      annotations: {
+        openWorldHint: true
+      }
+    },
+    async ({ domainName, fields }): Promise<TextualResponse> => {
+      const response = await rtr.domains.get(domainName, fields as (keyof IDomain)[])
+      const jsonString = JSON.stringify(response)
+      return replyText(jsonString, JSON.parse(jsonString))
+    }
+  )
+
 
   /**
    * Register a new domain.
    * @param domain - Domain name to register.
    * @param registrant - Contact handle of the registrant.
    * @param quote - If true, requests a quote for the domain registration.
+   * @link https://dm.realtimeregister.com/docs/api/domains/create
    */
   server.registerTool(
     'register_domain',

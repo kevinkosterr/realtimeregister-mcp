@@ -21,6 +21,11 @@ export const DomainRegistrationSchema = DomainTransferSchema.extend({
   skipValidation: z.boolean().default(false)
 })
 
+export const DomainGetSchema = z.object({
+  domainName: z.string().max(255).describe('The domain name to retrieve'),
+  fields: z.array(z.string()).optional().describe('Fields to include in the response')
+}).strict()
+
 export type DomainTransfer = z.infer<typeof DomainTransferSchema>
 export type DomainRegistration = z.infer<typeof DomainRegistrationSchema>
 
