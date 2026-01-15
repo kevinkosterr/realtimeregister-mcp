@@ -1,8 +1,8 @@
-import type { ToolCallBack } from '../models/tools.js'
-import { textResponse } from '../helpers.js'
+import type { TextualResponse } from '../models/tools.js'
+import { replyText } from './generic.js'
 
 export interface PendingAction {
-  executor: () => Promise<ToolCallBack>
+  executor: () => Promise<TextualResponse>
   timestamp: number
 }
 
@@ -21,7 +21,7 @@ export function getNextPendingAction (): PendingActionEntry {
   return PENDING_ACTIONS.entries().next().value
 }
 
-export function createPendingAction (actionName: string, executor: () => Promise<ToolCallBack>): void {
+export function createPendingAction (actionName: string, executor: () => Promise<TextualResponse>): void {
   PENDING_ACTIONS.set(actionName, { executor, timestamp: Date.now() })
 }
 
@@ -34,9 +34,9 @@ export function hasPendingActions(): boolean {
  */
 export async function cancelPendingAction(): Promise<any> {
   const action: PendingActionEntry = getNextPendingAction()
-  if (!action) return textResponse('There is no pending action to cancel.')
+  if (!action) return replyText('There is no pending action to cancel.')
   PENDING_ACTIONS.delete(action[0])
-  return textResponse('Action cancelled.')
+  return replyText('Action cancelled.')
 }
 
 /**
@@ -44,6 +44,6 @@ export async function cancelPendingAction(): Promise<any> {
  */
 export async function executePendingAction (): Promise<any> {
   const action: PendingActionEntry = getNextPendingAction()
-  if (!action) return textResponse('There is no pending action to execute.')
+  if (!action) return replyText('There is no pending action to execute.')
   return await action[1].executor().then(() => PENDING_ACTIONS.delete(action[0]))
 }
