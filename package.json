@@ -17,7 +17,7 @@
   "license": "MIT",
   "files": ["build"],
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.21.1",
+    "@modelcontextprotocol/sdk": "^1.25.2",
     "@realtimeregister/api": "^1.5.0",
     "zod": "^3"
   },
